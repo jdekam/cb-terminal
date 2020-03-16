@@ -27,7 +27,7 @@ const router = new VueRouter ({
       name: 'terminal',
       component: Terminal,
     },
-  ]
+  ],
 })
 
 export default router
