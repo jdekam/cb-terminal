@@ -15,7 +15,7 @@
       <div class="row">
         <div class="col-md-12">
           <div id="announcements" style="font-size:20pt;">
-            <div 
+            <div
               class="alert alert-info" role="alert"
               v-for="announcement in announcements"
               :key="announcement.id"
