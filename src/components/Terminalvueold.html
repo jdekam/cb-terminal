@@ -1,0 +1,262 @@
+<template>
+  <div class="row" style="margin-left: 10px"> <!-- ADDED THIS TO FIX MARGIN -->
+    <!-- Sidebar with logo, username, and balance -->
+    <div class="col-md-2">
+      <div class="row well">
+        <img src="../assets/chezbetty_1000px.jpg" class="pull-left" style="margin-top: 5px; width: 100px;" />
+        <h4 class="pull-right" style="width: 100px;"> "username.name" </h4>
+      </div>
+
+      <div id="user-info-current-balance" class="row well jumbotron">
+        <h4> Your Current Balance </h4>
+        <span class="current-formatted-balance"> "user.balance|format_currency|safe" </span>
+      </div>
+
+      <div id="user-info-new-balance" class="row well jumbotron">
+        <h4> Balance after Purchase or Deposit </h4>
+        <span> "user.balance|format_currency|safe" </span>
+      </div>
+
+      <div id="pool-info-current-balance" class="row well jumbotron" style="display:none;">
+        <h4> Selected Pool Balance </h4>
+        <span></span>
+      </div>
+
+      <!--
+      <div id="user-balance" class="hidden">{{ user.balance }}</div>
+      <div id="user-umid" class="hidden">{{ user.umid }}</div>
+      <div id="user-role" class="hidden">{{ user.role }}</div>
+
+      {% for pool in purchase_pools %}
+      <div id="pool-balance-{{ pool.id }}" class="hidden">{{ pool.balance }}</div>
+      {% endfor %}
+      -->
+
+      <!-- Deposit Box -->
+      <div class="panel panel-default row">
+        <div class="panel-heading">
+          <h3 class="panel-title" style="font-size:150%;"> Cash Deposit </h3>
+        </div>
+        <div class="panel-body">
+
+          <div id="deposit-alerts"></div>
+
+          <div id="deposit-main" style="display:none;">
+            <div class="row">
+              <div class="col-md-12">
+                <h5 style="font-size:150%;"> To make a cash deposit, put money in the bill acceptor. It will automatically be added to your account. </h5>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div id="deposit-complete" style="display:none;">
+          <div class="row">
+            <div class="col-md-12">
+
+              <div style="text-align:center;">
+                <span class="deposit-thankyou"> Thank you! </span>
+              </div>
+
+              <p>
+                <span id="deposit-complete-user">
+                  <!--
+                  {% if deposit %}
+                  {{ _("You successfully deposited %(amount)s into your account.")|
+                   format(amount='<span class="deposit-amount">'~deposit.amount|format_currency~'</span>')|safe }}
+                  {% else %}
+                  {{ _("You successfully deposited %(amount)s into your account.")|
+                   format(amount='<span class="deposit-amount"></span>')|safe }}
+                  {% endif %}
+                -->
+                </span>
+              </p>
+
+              <p>
+                You can continue to insert bills into the bill acceptor.
+                They will be added to your deposit.
+              </p>
+
+            </div>
+          </div>
+        </div>
+
+        <div id="deposit-counting" class="row" style="display:none;">
+          <div class="col-md-12">
+            <h3>Processing the inserted bill...</h3>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- Purchase panel -->
+    <div class="col-md-10">
+
+      <div id="panel-purchase" class="panel panel-default">
+        <div class="panel-heading">
+          <h3 class="panel-title">Purchase</h3>
+        </div>
+        <div class="panel-body">
+
+          <div id="purchase-alerts"></div>
+
+          <div id="purchase-entry" class="row">
+
+            <div class="col-md-9">
+              <!--
+              {% if demo and request.has_permission("admin") %}
+              <div class="well">
+                <h4>Demo Mode</h4>
+                {% for item in items %}
+                <a class="btn btn-default btn-small btn-bordered" href="#" onclick='add_item("{{ item.barcode }}");'>{{ item.name }}</a>
+                {% endfor %}
+              </div>
+              {% endif %}
+              -->
+              <table class="table table-bordered" id="purchase-table">
+                <thead>
+                  <tr>
+                    <th style="width: 6%">&nbsp;</th>
+                    <th>Item</th>
+                    <th style="width: 20%" colspan="3">Quantity</th>
+                    <th style="width: 10%">Item Price</th>
+                    <th style="width: 10%">Total Price</th>
+                  </tr>
+                </thead>
+
+                <tbody>
+                  <tr id="purchase-empty">
+                    <td colspan="7">
+                      <h3>Order Empty</h3>
+                      Scan an item to begin
+                    </td>
+                  </tr>
+                </tbody>
+
+                <tfoot>
+                  <!-- todo: parameterize this. note the JS has to change too -->
+                  <tr id="purchase-row-subtotal"  style="display:none;">
+                    <td colspan="6"><b>Subtotal</b></td>
+                    <td id="purchase-subtotal">$0.00</td>
+                  </tr>
+                  <tr id="purchase-row-goodstanding" style="display:none;" >
+                    <td colspan="2"><b>Good Standing Discount </b></td>
+                    <td id="purchase-discount-percent" colspan="4"> admin_discount </td>
+                    <td id="purchase-discount">($0.00)</td>
+                  </tr>
+                  <!--
+                  <tr id="purchase-row-wallshame"
+                          {% if user.balance >= -5 or user.role == "administrator"  %}style="display:none;"{% endif %}
+                          {% if user.balance < -5 %}class="big-debt"{% endif %}
+                          >
+                    <td colspan="2"><b>{{ _("Debtor's Fee") }}</b></td>
+                    <td id="purchase-fee-percent" colspan="4"><span id="purchase-fee-percent-amount">{{ purchase_fee_percent }}</span>%</td>
+                    <td id="purchase-fee">$0.00</td>
+                  </tr>
+                  -->
+                  <tr>
+                    <td colspan="6"><b> Total </b></td>
+                    <td id="purchase-total">$0.00</td>
+                  </tr>
+                </tfoot>
+              </table>
+
+            </div>
+
+            <div class="col-md-3">
+              <!-- Payment options -->
+              <div class="list-group">
+                <button type="button" class="list-group-item list-group-item-info list-group-item-header">Select Payment</button>
+                <button type="button" id="payment-user" class="list-group-item purchase-payment active">Your Account</button>
+                <!-- for pool in purchase_pools -->
+                <button type="button" id="payment-pool-pool.id" class="list-group-item purchase-payment"> fix later </button>
+              </div>
+
+              <!-- Choose item without barcode -->
+              <div style="margin-bottom: 10px;">
+                <button type="button" id="btn-nobarcode" class="btn btn-default btn-lg btn-primary" style="width: 100%; height: 150px">
+                  Item Without Barcode
+                </button>
+              </div>
+            </div>
+
+          </div>
+
+          <div id="purchase-complete" class="row" style="display:none;">
+            <div class="col-md-12">
+
+              <div id="purchase-complete-table"></div>
+              <div id="purchase-eventid" class="hidden"></div>
+
+            </div>
+          </div>
+
+          <!-- Recently purchased items -->
+          <hr />
+          <h4>Quick-Select Some Recently Purchased Items</h4>
+          <div id="recently-purchased" class="row">
+            <div class="col-md-1"></div>
+            <!-- for item in user.iterate_recent_items(limit=5) -->
+            <div class="col-md-2">
+              <div class="tag-item" data-item-id="item.id">
+                <!--
+                {% if item.img %}
+                <div class="item-img-boundingbox" style="background-image: url('/dynamic/item/{{item.id}}.jpg');"></div>
+                {% else %}
+                <img src="{{'chezbetty:static/placeholder_300px.png'|static_url}}" width="150px" />
+                {% endif %}
+                <div class="tag-item-name">
+                  {{ item.name }}
+                </div>
+                -->
+              </div>
+            </div>
+          </div>
+
+          <hr />
+
+          <!-- Purchase buttons -->
+          <div id="purchase-buttons" class="row">
+            <div class="col-md-12">
+              <button type="button" id="purchase-button-logout" class="btn btn-success btn-lg btn-submit btn-submit-purchase"> Logout </button>
+              <button type="button" id="purchase-button-purchaselogout" class="btn btn-success btn-lg btn-submit btn-submit-purchase" style="display:none;"> Purchase & Logout </button>
+              <button type="button" id="purchase-button-purchase" class="btn btn-success btn-lg btn-submit btn-submit-purchase" style="display:none;"> Purchase </button>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+      <!--
+      {# Hidden items without barcodes chooser panel #}
+      <div id="panel-nobarcode" class="panel panel-default" style="display:none;">
+        <div class="panel-heading">
+          <h3 class="panel-title">{{ _('Select Item Without Barcode') }}</h3>
+        </div>
+        <div class="panel-body">
+          <div id="tags">
+            <h3>Choose an Item Category</h3>
+            {% for tag in tags_with_nobarcode_items %}
+            <button type="button" class="btn btn-nobarcode-tag btn-default" data-tagid="{{ tag.id }}">{{ tag.name }}</button>
+            {% endfor %}
+            {% if nobarcode_notag_items %}
+            <button type="button" class="btn btn-nobarcode-tag btn-default" data-tagid="other">Other</button>
+            {% endif %}
+
+            <div>
+              <button type="button" id="btn-nobarcode-tags-back" class="btn btn-warning btn-back">Back</button>
+            </div>
+          </div>
+
+          <div id="tag-items" style="display:none;">
+            <div id="tag-items-content"></div>
+            <div style="clear:left;">
+              <button type="button" id="btn-nobarcode-tag-items-back" class="btn btn-warning btn-back">Back</button>
+            </div>
+          </div>
+        </div>
+      </div>
+      -->
+  </div>
+  </div>
+</template>
