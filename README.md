@@ -1,5 +1,5 @@
 # cb-terminal
-An rebuild and redesign of the terminal interface used by the Chez Betty store 
+A rebuild and redesign of the terminal interface used by the Chez Betty store 
 at the University of Michigan. It is a native application running in Electron 
 with logic handled in Vue. Installation and integration handled with the 
 [vue-cli-plugin-electron-builder](https://github.com/nklayman/vue-cli-plugin-electron-builder) 
