@@ -1,7 +1,5 @@
 <template>
   <div id="app">
-    <router-link to="/login">Go to Login</router-link>
-    <router-link to="/terminal">Go to Terminal</router-link>
     <router-view></router-view>
   </div>
 </template>
