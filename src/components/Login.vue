@@ -114,7 +114,7 @@
   </section>
 </template>
 
-<style lang="scss">
+<style scoped lang="scss">
   // helper to vertically center items
   .is-vertical-centered {
     display: flex;
@@ -124,6 +124,11 @@
   // remove vertical scrollbar
   ::-webkit-scrollbar {
     display: none; 
+  }
+
+  // remove overflow scrollbars
+  html {
+    overflow: hidden;
   }
 
   // make page fill screen
