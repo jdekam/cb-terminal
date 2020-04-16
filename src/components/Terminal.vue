@@ -32,6 +32,22 @@
             <div class="panel-block">
               <div class="tile">
                 <!-- Purchase Table -->
+                <!-- TODO: Figure out how to put this code into the table.
+                <input type="text" v-model="barcode" v-on:keyup.enter="addItem" placeholder="Item Barcode"/>
+                <div class="cart">
+                  <div class="item" v-for="(item, index) in cart" :key="index">
+                    <div class="costs">${{item.cost}}</div>
+                    <div class="type">{{item.type}}</div>
+                    <div class="amount">{{item.amount}}</div>
+                  </div>
+                </div>
+
+                <button id="cart-submit" v-on:click="toCheckout" v-if="!checkingOut">CHECK OUT</button>
+                <div id="checkout" v-if="checkingOut">
+                  Purchase these items?
+                  <button v-on:click="checkOut">Confirm Purchase</button>
+                </div>
+                -->
                 <div class="tile is-parent is-9">
                   <div class="tile is-child">
                     <table class="table is-bordered is-fullwidth">
@@ -78,42 +94,7 @@
                 </div>
               </div>
             </div>
-<<<<<<< HEAD
             <button class="button is-large is-success is-fullwidth"> Logout </button>
-=======
-          </div>
-        </div>
-        <div class="tile is-child">
-          <div class="card">
-            YOUR BALANCE AFTER PURCHASES AND DEPOSITS IS -$1.00
-          </div>
-        </div>
-        <div class="tile is-child">
-          <div class="card">
-            CASH DEPOSIT FAQ
-          </div>
-        </div>
-        -->
-
-      <div class="tile is-vertical is-parent is-10">
-        <div class="tile is-child">
-          <div class="card">
-            THIS IS THE PURCHASE SCREEN
-            <input type="text" v-model="barcode" v-on:keyup.enter="addItem" placeholder="Item Barcode"/>
-            <div class="cart">
-              <div class="item" v-for="(item, index) in cart" :key="index">
-                <div class="costs">${{item.cost}}</div>
-                <div class="type">{{item.type}}</div>
-                <div class="amount">{{item.amount}}</div>
-              </div>
-            </div>
-
-            <button id="cart-submit" v-on:click="toCheckout" v-if="!checkingOut">CHECK OUT</button>
-            <div id="checkout" v-if="checkingOut">
-              Purchase these items?
-              <button v-on:click="checkOut">Confirm Purchase</button>
-            </div>
->>>>>>> ade2136f90a3c89c8fec5600cfcf40803e419f71
           </div>
         </div>
       </div>
