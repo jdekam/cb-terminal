@@ -78,7 +78,42 @@
                 </div>
               </div>
             </div>
+<<<<<<< HEAD
             <button class="button is-large is-success is-fullwidth"> Logout </button>
+=======
+          </div>
+        </div>
+        <div class="tile is-child">
+          <div class="card">
+            YOUR BALANCE AFTER PURCHASES AND DEPOSITS IS -$1.00
+          </div>
+        </div>
+        <div class="tile is-child">
+          <div class="card">
+            CASH DEPOSIT FAQ
+          </div>
+        </div>
+        -->
+
+      <div class="tile is-vertical is-parent is-10">
+        <div class="tile is-child">
+          <div class="card">
+            THIS IS THE PURCHASE SCREEN
+            <input type="text" v-model="barcode" v-on:keyup.enter="addItem" placeholder="Item Barcode"/>
+            <div class="cart">
+              <div class="item" v-for="(item, index) in cart" :key="index">
+                <div class="costs">${{item.cost}}</div>
+                <div class="type">{{item.type}}</div>
+                <div class="amount">{{item.amount}}</div>
+              </div>
+            </div>
+
+            <button id="cart-submit" v-on:click="toCheckout" v-if="!checkingOut">CHECK OUT</button>
+            <div id="checkout" v-if="checkingOut">
+              Purchase these items?
+              <button v-on:click="checkOut">Confirm Purchase</button>
+            </div>
+>>>>>>> ade2136f90a3c89c8fec5600cfcf40803e419f71
           </div>
         </div>
       </div>
@@ -197,6 +232,25 @@
     }
   }
 
+  .cart {
+    border-style: solid;
+    padding: 5%;
+    overflow: scroll;
+  }
+
+  .item {
+    display: inline-block;
+  }
+
+  .costs {
+    border-style: solid;
+    border-width: 1px;
+  }
+
+  .type .amount{
+    margin: 5%;
+  }
+
 </style>
 
 <script>
@@ -207,20 +261,100 @@ export default {
       balance: '-5.00',
       balance_after: '-6.00',
       amount_owed: '0',
+      cart: [{cost: 2.50.toFixed(2), type: "Milk", amount: 1}],
+      cart_total: 0,
+      checkingOut: false,
+      barcode: "",
+      jsonData: {},
     }
   },
   methods: {
     getUsername() {
       // api call to get username
+      let url = "/terminal/check";
+      this.$axios.get(url)
+        .then(() => function(response) {
+          this.jsonData = response;
+          //need to pass the response up to login.vue, unsure how
+        });
     },
     getBalance() {
       // api call to get user's current balance
+      /**
+      let url = "/terminal/check";
+      this.$axios.get(url)
+        .then(response => function(response) {
+          return response.balance;
+        });
+      */
     },
     getAnnouncements() {
       // api call to retreive announcements
+      /**
+      let url = "/admin/announcements";
+      this.$axios.get(url)
+        .then(response => function(response) {
+          return response.announcements;
+        });
+        */
     },
     getDebt() {
       // api call to retreive user debt
+      /**
+      let url = "/admin/data/users/balance/totals";
+      this.$axios.get(url)
+        .then(response => function(response) {
+          return response.currentUserDebt;
+        });
+        */
+    },
+    toCheckout() {
+      this.checkingOut = true;
+    },
+    addItem() {
+      //get cost
+      /**
+      let url = "/terminal/item/barcode/" + this.barcode;
+      this.$axios.get(url)
+        .then(response => function(response) {
+          this.jsonData = response;
+        })
+        .then(response => function() {
+          let cost = 4.30;
+          //let cost = this.jsonData.price;
+          //let type = this.jsonData.item;
+          for (let i = 0; i < this.cart.length; ++i) {
+            //if (this.cart[i].type === type)
+            if (this.cart[i].type === this.barcode) {
+              this.cart[i].amount += 1;
+              return;
+            }
+          }
+          //let pusher = {"cost": cost.toFixed(2), "type": type:, "amount": 1}
+          let pusher = {"cost": cost.toFixed(2), "type": this.barcode, "amount": 1};
+          this.cart.push(pusher);
+          this.cart_total += pusher.cost;
+        });
+        */
+      let cost = 4.30;
+      for (let i = 0; i < this.cart.length; ++i) {
+        if (this.cart[i].type === this.barcode) {
+          this.cart[i].amount += 1;
+          return;
+        }
+      }
+      let pusher = {"cost": cost.toFixed(2), "type": this.barcode, "amount": 1};
+      this.cart.push(pusher);
+      this.cart_total += pusher.cost;
+    },
+    checkOut() {
+      /**
+      let url = "/terminal/purchase";
+      this.$axios.post(url, {
+        username: this.username,
+        total: this.cart_total,
+      })
+      */
     },
   }
 }
