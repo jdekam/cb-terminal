@@ -6,7 +6,7 @@
           <div class="card is-vertical-centered">
             <div class="card-image is-pulled-left">
               <figure class="image is-square">
-                <img src="../assets/chezbetty_1000px.jpg">
+                <img src="../assets/chezbetty_1000px.jpg" alt="CB Logo">
               </figure>
             </div>
             <div class="card-content">
@@ -98,13 +98,13 @@
       <div class="modal-content">
         <div class="notification is-danger is-size-3">
           <span v-if="scanned">
-            Your UMID scan was not recognized. Try swiping your M-Card again. If the issue persists, 
-            please e-mail the Chez Betty development team at <a>chezbetty@umich.edu</a> so that 
+            Your UMID scan was not recognized. Try swiping your M-Card again. If the issue persists,
+            please e-mail the Chez Betty development team at <a>chezbetty@umich.edu</a> so that
             we can take a look.
           </span>
           <span v-else>
-            Your UMID entry was not recognized. If this is your first time using Chez Betty you need to 
-            create an account by swiping your M-Card at this kiosk. If you are sure you already have 
+            Your UMID entry was not recognized. If this is your first time using Chez Betty you need to
+            create an account by swiping your M-Card at this kiosk. If you are sure you already have
             a Betty account, try re-entering your UMID.
           </span>
         </div>
@@ -123,7 +123,7 @@
 
   // remove vertical scrollbar
   ::-webkit-scrollbar {
-    display: none; 
+    display: none;
   }
 
   // remove overflow scrollbars

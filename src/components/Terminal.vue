@@ -1,7 +1,7 @@
 <template>
   <section class="section is-clipped">
     <div class="tile is-ancestor">
-      <div class="tile is-vertical is-parent is-2">
+      <div class="tile is-parent is-vertical is-2">
         <div class="tile is-child">
           <div class="card">
             <figure class="image is-square">
@@ -25,42 +25,79 @@
           </p>-->
         </div>
       </div>
-
-        <!--
+      <div class="tile is-parent is-10">
         <div class="tile is-child">
-          <div class="card">
-            <div class="card-content">
-              <div class="notification is-info is-size-7">
-                <p> Your Current Balance </p>
-                <p> -$1.00 </p>
+          <div class="panel is-info">
+            <p class="panel-heading"> Purchase </p>
+            <div class="panel-block">
+              <div class="tile">
+                <!-- Purchase Table -->
+                <div class="tile is-parent is-9">
+                  <div class="tile is-child">
+                    <table class="table is-bordered is-fullwidth">
+                      <thead>
+                        <tr>
+                          <th>Item</th>
+                          <th>Quantity</th>
+                          <th>Item Price</th>
+                          <th>Total Price</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        <tr>
+                          <td colspan="4">
+                            <h1> Order Empty </h1>
+                            <h3> Scan an item to begin </h3>
+                          </td>
+                        </tr>
+                      </tbody>
+                      <tfoot>
+                        <tr>
+                          <td colspan="3"> Subtotal </td>
+                        </tr>
+                        <tr>
+                          <td colspan="1"> Good Standing Discount </td>
+                          <td colspan="2"> %% </td>
+                          <td colspan="2"> $$ </td>
+                        </tr>
+                        <tr>
+                          <td colspan="3"> Total </td>
+                        </tr>
+                      </tfoot>
+                    </table>
+                  </div>
+                </div>
+                <div class="tile is-parent is-3">
+                  <div class="tile is-child">
+                    <div class="buttons">
+                      <button class="button is-small is-link is-fullwidth"> Select Payment </button>
+                      <button class="button is-small is-info is-fullwidth"> Your Account </button>
+                      <button class="button is-info is-fullwidth"> Item Without Barcode </button>
+                    </div>
+                  </div>
+                </div>
               </div>
             </div>
-          </div>
-        </div>
-        <div class="tile is-child">
-          <div class="card">
-            YOUR BALANCE AFTER PURCHASES AND DEPOSITS IS -$1.00
-          </div>
-        </div>
-        <div class="tile is-child">
-          <div class="card">
-            CASH DEPOSIT FAQ
-          </div>
-        </div>
-        -->
-
-      <div class="tile is-vertical is-parent is-10">
-        <div class="tile is-child">
-          <div class="card">
-            THIS IS THE PURCHASE SCREEN
+            <button class="button is-large is-success is-fullwidth"> Logout </button>
           </div>
         </div>
       </div>
     </div>
-    <div class="finish">
-      <div class="card is-fullwidth" style="height: 10%;">
-        ello mte
+    <div class="tile cb-translate">
+      <div class="buttons is-centered">
+        <button class="button">English</button>
+        <button class="button">Deutsch</button>
+        <button class="button">français</button>
+        <button class="button">漢語</button>
+        <button class="button">简体中文</button>
+        <button class="button">فارسی</button>
+        <button class="button">Română</button>
+        <button class="button">Español</button>
+        <button class="button">العربية</button>
       </div>
+      <p class="subtitle">
+        Can you help translate Betty? Check us out on Github!
+      </p>
     </div>
   </section>
 </template>
