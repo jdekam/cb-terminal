@@ -213,19 +213,18 @@ export default {
   methods: {
     getUsername() {
       // api call to get username
-      /**
-      let url = "";
-      axios.get(url)
-        .then(response => function(response) {
-          return response.username;
+      let url = "/terminal/check";
+      this.$axios.get(url)
+        .then(() => function(response) {
+          this.jsonData = response;
+          //need to pass the response up to login.vue, unsure how
         });
-      */
     },
     getBalance() {
       // api call to get user's current balance
       /**
-      let url = "";
-      axios.get(url)
+      let url = "/terminal/check";
+      this.$axios.get(url)
         .then(response => function(response) {
           return response.balance;
         });
@@ -234,8 +233,8 @@ export default {
     getAnnouncements() {
       // api call to retreive announcements
       /**
-      let url = "";
-      axios.get(url)
+      let url = "/admin/announcements";
+      this.$axios.get(url)
         .then(response => function(response) {
           return response.announcements;
         });
@@ -244,8 +243,8 @@ export default {
     getDebt() {
       // api call to retreive user debt
       /**
-      let url = "";
-      axios.get(url)
+      let url = "/admin/data/users/balance/totals";
+      this.$axios.get(url)
         .then(response => function(response) {
           return response.currentUserDebt;
         });
@@ -257,8 +256,8 @@ export default {
     addItem() {
       //get cost
       /**
-      let url = "";
-      axios.get(url)
+      let url = "/terminal/item/barcode/" + this.barcode;
+      this.$axios.get(url)
         .then(response => function(response) {
           this.jsonData = response;
         })
@@ -292,8 +291,8 @@ export default {
     },
     checkOut() {
       /**
-      let url = "";
-      axios.post(url, {
+      let url = "/terminal/purchase";
+      this.$axios.post(url, {
         username: this.username,
         total: this.cart_total,
       })
