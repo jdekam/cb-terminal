@@ -52,20 +52,33 @@
       <div class="tile is-vertical is-parent is-10">
         <div class="tile is-child">
           <div class="card">
-            THIS IS THE PURCHASE SCREEN
-            <input type="text" v-model="barcode" v-on:keyup.enter="addItem" placeholder="Item Barcode"/>
-            <div class="cart">
-              <div class="item" v-for="(item, index) in cart" :key="index">
-                <div class="costs">${{item.cost}}</div>
-                <div class="type">{{item.type}}</div>
-                <div class="amount">{{item.amount}}</div>
+            
+            <div v-if="!addingMoney">
+              <button class="return-button" v-on:click="logOut"> LOG OUT </button>
+              <input type="text" v-model="barcode" v-on:keyup.enter="addItem" placeholder="Item Barcode"/>
+              <div class="cart">
+                <div class="item" v-for="(item, index) in cart" :key="index">
+                  <button class="remove-item" v-on:click="removeItem(item.type)">-</button>
+                  <div class="costs">${{item.cost}}</div>
+                  <div class="type">{{item.type}}</div>
+                  <div class="amount">{{item.amount}}</div>
+                </div>
+                Total: ${{cart_total}}
+              </div>
+
+              <button class="submit" v-on:click="toCheckout" v-if="!checkingOut">CHECK OUT</button>
+              <button class="submit" v-on:click="addFunds" v-if="!addingMoney">ADD FUNDS</button>
+              <div id="checkout" v-if="checkingOut">
+                Purchase these items for ${{cart_total}}?
+                <button class="submit" v-on:click="checkOut">Confirm Purchase</button>
+                <button class="return-button" v-on:click="toMain"> CANCEL </button>
               </div>
             </div>
 
-            <button id="cart-submit" v-on:click="toCheckout" v-if="!checkingOut">CHECK OUT</button>
-            <div id="checkout" v-if="checkingOut">
-              Purchase these items?
-              <button v-on:click="checkOut">Confirm Purchase</button>
+            <div v-if="addingMoney">
+              <button class="return-button" v-on:click="toMain"> EXIT </button>
+              <p>Deposit ${{}} into your account?</p>
+              <button v-on:click="addFunds"> Yes </button>
             </div>
           </div>
         </div>
@@ -192,6 +205,26 @@
   .type .amount{
     margin: 5%;
   }
+  
+  .submit {
+    background-color: #2c3e50;
+    color: white;
+    border-radius: 15px;
+    height: 20%;
+  }
+
+  .return-button {
+    background-color: red;
+    color: white;
+    border-radius: 15px;
+    height: 20%;
+  }
+
+  .remove-item {
+    background-color: red;
+    color: white;
+    border-radius: 50%;
+  }
 
 </style>
 
@@ -204,8 +237,9 @@ export default {
       balance_after: '-6.00',
       amount_owed: '0',
       cart: [{cost: 2.50.toFixed(2), type: "Milk", amount: 1}],
-      cart_total: 0,
+      cart_total: 2.50.toFixed(2),
       checkingOut: false,
+      addingMoney: false,
       barcode: "",
       jsonData: {},
     }
@@ -213,12 +247,15 @@ export default {
   methods: {
     getUsername() {
       // api call to get username
-      let url = "/terminal/check";
+      /**
+      let url = "localhost:6543/terminal/check";
       this.$axios.get(url)
         .then(() => function(response) {
           this.jsonData = response;
+          console.log(this.jsonData);
           //need to pass the response up to login.vue, unsure how
         });
+        */
     },
     getBalance() {
       // api call to get user's current balance
@@ -282,14 +319,43 @@ export default {
       for (let i = 0; i < this.cart.length; ++i) {
         if (this.cart[i].type === this.barcode) {
           this.cart[i].amount += 1;
+          this.cart_total = (parseFloat(this.cart_total) + parseFloat(this.cart[i].cost)).toFixed(2);
           return;
         }
       }
       let pusher = {"cost": cost.toFixed(2), "type": this.barcode, "amount": 1};
       this.cart.push(pusher);
-      this.cart_total += pusher.cost;
+      this.cart_total = (parseFloat(this.cart_total) + parseFloat(pusher.cost)).toFixed(2);
+    },
+    removeItem(itemType) {
+      for (let i = 0; i < this.cart.length; ++i) {
+        if(this.cart[i].type === itemType) {
+          if(this.cart[i].amount === 1) {
+            this.cart_total = (parseFloat(this.cart_total) - parseFloat(this.cart[i].cost)).toFixed(2);
+            this.cart.splice(i, 1);
+            return;
+          }
+          else {
+            this.cart[i].amount -= 1;
+            this.cart_total = (parseFloat(this.cart_total) - parseFloat(this.cart[i].cost)).toFixed(2);
+            return;
+          }
+        }
+      }
+
     },
     checkOut() {
+      /**
+      let url = "http://0.0.0.0:6543/terminal/11111111";
+      this.$axios.get(url)
+        .then(() => function(response) {
+          console.log("hello world");
+          this.jsonData = response;
+          console.log(this.jsonData);
+          //need to pass the response up to login.vue, unsure how
+        });
+      console.log("here2");
+      */
       /**
       let url = "/terminal/purchase";
       this.$axios.post(url, {
@@ -297,6 +363,17 @@ export default {
         total: this.cart_total,
       })
       */
+    },
+    toMain() {
+      this.checkingOut = false;
+      this.addingMoney = false;
+    },
+    addFunds() {
+      //api stuff to add funds to account and reload
+      this.toMain();
+    },
+    logOut() {
+      this.$router.push({ name: 'login', params: {  }});
     },
   }
 }
