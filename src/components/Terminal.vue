@@ -78,7 +78,7 @@
                 <div class="tile is-parent is-3">
                   <div class="tile is-child">
                     <div class="buttons">
-                     <!-- <button
+                      <!-- <button
                         class="button is-small is-link is-fullwidth"
                         v-on:click="selectPayment"
                       >Select Payment</button>
@@ -109,10 +109,10 @@
           <div v-if="noBarSearch">
             <button
               class="button is-large is-success margin-25"
-              v-for="(item, index) in no_barcode" :key="index" 
-              v-on:click="addItem(item.id)">
-              {{item.name}}
-            </button>
+              v-for="(item, index) in no_barcode"
+              :key="index"
+              v-on:click="addItem(item.id)"
+            >{{item.name}}</button>
           </div>
         </div>
       </div>
@@ -256,12 +256,12 @@ export default {
         },
         {
           id: 4,
-          cost: (.3).toFixed(2),
+          cost: (0.3).toFixed(2),
           name: "Dunkems"
         },
         {
           id: 5,
-          cost: (.7).toFixed(2),
+          cost: (0.7).toFixed(2),
           name: "Twizzlers"
         },
         {
@@ -301,11 +301,12 @@ export default {
     };
   },
   mounted: function() {
-    this.username = this.$router.params.user_name;
-    this.balance = this.$router.params.user_balance;
-    this.umid = this.$router.params.user_umid;
-    this.discout = this.$router.params.good_standing_discount;
-    this.no_barcode = this.$router.params.tags_with_nobarcode_items;
+    console.log(this.$route.params);
+    this.username = this.$route.params.user_name;
+    this.balance = this.$route.params.user_balance;
+    this.umid = this.$route.params.user_umid;
+    this.discout = this.$route.params.good_standing_discount;
+    this.no_barcode = this.$route.params.tags_with_nobarcode_items;
   },
   methods: {
     addItem(itemID) {
@@ -317,29 +318,35 @@ export default {
           umid: this.umid,
           token: "ABC123",
           item_id: itemID
-        }, )
+        })
         .then(
-          () => function(response) {
-            console.log("RESPONDED");
-            let cost = response.price;
-            for (let i = 0; i < this.cart.length; ++i) {
-            if (this.cart[i].id === response.id) {
-              this.cart[i].amount += 1;
+          () =>
+            function(response) {
+              console.log("RESPONDED");
+              let cost = response.price;
+              for (let i = 0; i < this.cart.length; ++i) {
+                if (this.cart[i].id === response.id) {
+                  this.cart[i].amount += 1;
+                  this.cart_total = (
+                    parseFloat(this.cart_total) + parseFloat(this.cart[i].cost)
+                  ).toFixed(2);
+                  return;
+                }
+              }
+              let pusher = {
+                id: response.id,
+                cost: cost.toFixed(2),
+                type: response.name,
+                amount: 1
+              };
+              this.cart.push(pusher);
               this.cart_total = (
-                parseFloat(this.cart_total) + parseFloat(this.cart[i].cost)
+                parseFloat(this.cart_total) + parseFloat(pusher.cost)
               ).toFixed(2);
-              return;
+              console.log("HERE");
+              this.toMain();
             }
-          }
-          let pusher = { id: response.id, cost: cost.toFixed(2), type: response.name, amount: 1 };
-          this.cart.push(pusher);
-          this.cart_total = (
-            parseFloat(this.cart_total) + parseFloat(pusher.cost)
-          ).toFixed(2);
-          console.log("HERE");
-          this.toMain();
-          }
-        )
+        );
     },
     //removes and item from the cart
     removeItem(itemType) {
@@ -364,7 +371,7 @@ export default {
     checkOut() {
       let sender = [];
       for (let item in this.cart) {
-        let pusher = {item_id: item.id, quantity: item.amount};
+        let pusher = { item_id: item.id, quantity: item.amount };
         sender.push(pusher);
       }
       let url = "http://localhost:6543/api/terminal/purchase";

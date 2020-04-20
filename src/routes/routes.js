@@ -10,11 +10,11 @@ import Terminal from '../components/Terminal'
 Vue.use(VueRouter)
 
 // register new routes here
-const router = new VueRouter ({
+const router = new VueRouter({
   routes: [
     {
       path: '/',
-      redirect: '/terminal', // NOTE SHOULD REDIRECT TO LOGIN (WAS CHANGED TO DEBUG TERMINAL)
+      redirect: '/login', // NOTE SHOULD REDIRECT TO LOGIN (WAS CHANGED TO DEBUG TERMINAL)
     },
     {
       path: '/login',
