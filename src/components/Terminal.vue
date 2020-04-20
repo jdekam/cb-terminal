@@ -36,6 +36,7 @@
                     <table class="table is-bordered is-fullwidth">
                       <thead>
                         <tr>
+                          <th>Remove Item</th>
                           <th>Item</th>
                           <th>Quantity</th>
                           <th>Item Price</th>
@@ -44,13 +45,20 @@
                       </thead>
                       <tbody>
                         <tr v-if="emptyCart">
-                          <td colspan="4">
+                          <td colspan="5">
                             <h1>Order Empty</h1>
                             <h3>Scan an item to begin</h3>
                           </td>
                         </tr>
 
                         <tr v-for="(item, index) in cart" :key="index">
+                          <td> 
+                            <button
+                              class="remove"
+                              v-on:click="removeItem(item.id)">
+                              -
+                            </button>
+                          </td>
                           <td>{{item.type}}</td>
                           <td>{{item.amount}}</td>
                           <td>${{item.cost}}</td>
@@ -59,16 +67,16 @@
                       </tbody>
                       <tfoot>
                         <tr>
-                          <td colspan="3">Subtotal</td>
+                          <td colspan="4">Subtotal</td>
                           <td>{{cart_total}}</td>
                         </tr>
                         <tr>
-                          <td colspan="1">Good Standing Discount</td>
-                          <td colspan="2">{{discount}}%</td>
-                          <td colspan="2">${{discount_savings}}</td>
+                          <td colspan="3">Good Standing Discount</td>
+                          <td colspan="1">{{discount}}%</td>
+                          <td colspan="1">${{discount_savings}}</td>
                         </tr>
                         <tr>
-                          <td colspan="3">Total</td>
+                          <td colspan="4">Total</td>
                           <td>${{final_total}}</td>
                         </tr>
                       </tfoot>
@@ -111,8 +119,9 @@
               class="button is-large is-success margin-25"
               v-for="(item, index) in no_barcode"
               :key="index"
-              v-on:click="addItem(item.id)"
-            >{{item.name}}</button>
+              v-on:click="addItem(item.id)">
+              {{item.name}}
+            </button>
           </div>
         </div>
       </div>
@@ -232,6 +241,12 @@ style chez betty logo .card-image {
 .margin-25 {
   margin: 2.5%;
 }
+
+.remove {
+  border-radius: 50%;
+  background-color: red;
+  color: white;
+}
 </style>
 
 <script>
@@ -302,11 +317,11 @@ export default {
   },
   mounted: function() {
     console.log(this.$route.params);
-    this.username = this.$route.params.user_name;
-    this.balance = this.$route.params.user_balance;
-    this.umid = this.$route.params.user_umid;
-    this.discout = this.$route.params.good_standing_discount;
-    this.no_barcode = this.$route.params.tags_with_nobarcode_items;
+    //this.username = this.$route.params.user_name;
+    //this.balance = this.$route.params.user_balance;
+    //this.umid = this.$route.params.user_umid;
+    //this.discout = this.$route.params.good_standing_discount;
+    //this.no_barcode = this.$route.params.tags_with_nobarcode_items;
   },
   methods: {
     addItem(itemID) {
@@ -320,7 +335,6 @@ export default {
           item_id: itemID
         })
         .then(response => {
-          console.log("RESPONDED");
           let cost = parseFloat(response.data.price);
           for (let i = 0; i < this.cart.length; ++i) {
             if (this.cart[i].id === response.data.id) {
@@ -328,7 +342,10 @@ export default {
               this.cart_total = (
                 parseFloat(this.cart_total) + parseFloat(pusher.cost)
               ).toFixed(2);
-              console.log("HERE");
+              this.discount_savings = (
+                parseFloat(this.discount_savings) + parseFloat(cost) * (parseFloat(this.discount) / 100)
+              ).toFixed(2);
+              this.final_total = this.cart_total - this.discount_savings;
               this.toMain();
             }
           }
@@ -336,24 +353,32 @@ export default {
             id: response.data.id,
             cost: cost.toFixed(2),
             type: response.data.name,
-            amount: 1
+            amount: 1,
+            total_price: cost.toFixed(2),
           };
           this.cart.push(pusher);
           this.cart_total = (
             parseFloat(this.cart_total) + parseFloat(pusher.cost)
           ).toFixed(2);
-          console.log("HERE");
+          this.discount_savings = (
+            parseFloat(this.discount_savings) + parseFloat(cost) * (parseFloat(this.discount) / 100)
+          ).toFixed(2);
+          this.final_total = this.cart_total - this.discount_savings;
           this.toMain();
         });
     },
     //removes and item from the cart
-    removeItem(itemType) {
+    removeItem(itemID) {
       for (let i = 0; i < this.cart.length; ++i) {
-        if (this.cart[i].type === itemType) {
+        if (this.cart[i].id === itemID) {
           if (this.cart[i].amount === 1) {
             this.cart_total = (
               parseFloat(this.cart_total) - parseFloat(this.cart[i].cost)
             ).toFixed(2);
+            this.discount_savings = (
+              parseFloat(this.discount_savings) - parseFloat(this.cart[i].cost) * (parseFloat(this.discount) / 100)
+            ).toFixed(2);
+            this.final_total = this.cart_total - this.discount_savings;
             this.cart.splice(i, 1);
             return;
           } else {
