@@ -107,7 +107,10 @@
           </div>
 
           <div v-if="noBarSearch">
-            <button v-for="(item, index) in no_barcode" :key="index" v-on:click="addItem(item.id)">
+            <button
+              class="button is-large is-success margin-25"
+              v-for="(item, index) in no_barcode" :key="index" 
+              v-on:click="addItem(item.id)">
               {{item.name}}
             </button>
           </div>
@@ -226,43 +229,8 @@ style chez betty logo .card-image {
   }
 }
 
-.cart {
-  border-style: solid;
-  padding: 5%;
-  overflow: scroll;
-}
-
-.item {
-  display: inline-block;
-}
-
-.costs {
-  border-style: solid;
-  border-width: 1px;
-}
-
-.type .amount {
-  margin: 5%;
-}
-
-.submit {
-  background-color: #2c3e50;
-  color: white;
-  border-radius: 15px;
-  height: 20%;
-}
-
-.return-button {
-  background-color: red;
-  color: white;
-  border-radius: 15px;
-  height: 20%;
-}
-
-.remove-item {
-  background-color: red;
-  color: white;
-  border-radius: 50%;
+.margin-25 {
+  margin: 2.5%;
 }
 </style>
 
@@ -285,6 +253,31 @@ export default {
           id: 3,
           cost: (1.2).toFixed(2),
           name: "Coke"
+        },
+        {
+          id: 4,
+          cost: (.3).toFixed(2),
+          name: "Dunkems"
+        },
+        {
+          id: 5,
+          cost: (.7).toFixed(2),
+          name: "Twizzlers"
+        },
+        {
+          id: 6,
+          cost: (4.5).toFixed(2),
+          name: "Mocha Latte"
+        },
+        {
+          id: 7,
+          cost: (5).toFixed(2),
+          name: "Ribs"
+        },
+        {
+          id: 8,
+          cost: (3).toFixed(2),
+          name: "THIS IS A REALLY LONG NAME"
         }
       ],
       cart: [
