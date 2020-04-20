@@ -319,11 +319,11 @@ export default {
           item_id: itemID
         }, )
         .then(
-          () => function(response) {
+          (response) => {
             console.log("RESPONDED");
-            let cost = response.price;
+            let cost = parseFloat(response.data.price);
             for (let i = 0; i < this.cart.length; ++i) {
-            if (this.cart[i].id === response.id) {
+            if (this.cart[i].id === response.data.id) {
               this.cart[i].amount += 1;
               this.cart_total = (
                 parseFloat(this.cart_total) + parseFloat(this.cart[i].cost)
@@ -331,7 +331,7 @@ export default {
               return;
             }
           }
-          let pusher = { id: response.id, cost: cost.toFixed(2), type: response.name, amount: 1 };
+          let pusher = { id: response.data.id, cost: cost.toFixed(2), type: response.data.name, amount: 1 };
           this.cart.push(pusher);
           this.cart_total = (
             parseFloat(this.cart_total) + parseFloat(pusher.cost)
