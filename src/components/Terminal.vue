@@ -36,6 +36,7 @@
                     <table class="table is-bordered is-fullwidth">
                       <thead>
                         <tr>
+                          <th>Remove Item</th>
                           <th>Item</th>
                           <th>Quantity</th>
                           <th>Item Price</th>
@@ -44,13 +45,20 @@
                       </thead>
                       <tbody>
                         <tr v-if="emptyCart">
-                          <td colspan="4">
+                          <td colspan="5">
                             <h1>Order Empty</h1>
                             <h3>Scan an item to begin</h3>
                           </td>
                         </tr>
 
-                        <tr v-for="item in cart" :key="item">
+                        <tr v-for="(item, index) in cart" :key="index">
+                          <td> 
+                            <button
+                              class="remove"
+                              v-on:click="removeItem(item.id)">
+                              -
+                            </button>
+                          </td>
                           <td>{{item.type}}</td>
                           <td>{{item.amount}}</td>
                           <td>${{item.cost}}</td>
@@ -59,16 +67,16 @@
                       </tbody>
                       <tfoot>
                         <tr>
-                          <td colspan="3">Subtotal</td>
+                          <td colspan="4">Subtotal</td>
                           <td>{{cart_total}}</td>
                         </tr>
                         <tr>
-                          <td colspan="1">Good Standing Discount</td>
-                          <td colspan="2">{{discount}}%</td>
-                          <td colspan="2">${{discount_savings}}</td>
+                          <td colspan="3">Good Standing Discount</td>
+                          <td colspan="1">{{discount}}%</td>
+                          <td colspan="1">${{discount_savings}}</td>
                         </tr>
                         <tr>
-                          <td colspan="3">Total</td>
+                          <td colspan="4">Total</td>
                           <td>${{final_total}}</td>
                         </tr>
                       </tfoot>
@@ -78,14 +86,14 @@
                 <div class="tile is-parent is-3">
                   <div class="tile is-child">
                     <div class="buttons">
-                      <button
+                      <!-- <button
                         class="button is-small is-link is-fullwidth"
                         v-on:click="selectPayment"
                       >Select Payment</button>
                       <button
                         class="button is-small is-info is-fullwidth"
                         v-on:click="accountInfo"
-                      >Your Account</button>
+                      >Your Account</button>-->
                       <button
                         class="button is-info is-fullwidth"
                         v-on:click="itemWithoutBarcode"
@@ -107,7 +115,11 @@
           </div>
 
           <div v-if="noBarSearch">
-            <button v-for="item in no_barcode" :key="item" v-on:click="addItem(item.id)">
+            <button
+              class="button is-large is-success margin-25"
+              v-for="(item, index) in no_barcode"
+              :key="index"
+              v-on:click="addItem(item.id)">
               {{item.name}}
             </button>
           </div>
@@ -226,43 +238,14 @@ style chez betty logo .card-image {
   }
 }
 
-.cart {
-  border-style: solid;
-  padding: 5%;
-  overflow: scroll;
+.margin-25 {
+  margin: 2.5%;
 }
 
-.item {
-  display: inline-block;
-}
-
-.costs {
-  border-style: solid;
-  border-width: 1px;
-}
-
-.type .amount {
-  margin: 5%;
-}
-
-.submit {
-  background-color: #2c3e50;
-  color: white;
-  border-radius: 15px;
-  height: 20%;
-}
-
-.return-button {
-  background-color: red;
-  color: white;
-  border-radius: 15px;
-  height: 20%;
-}
-
-.remove-item {
-  background-color: red;
-  color: white;
+.remove {
   border-radius: 50%;
+  background-color: red;
+  color: white;
 }
 </style>
 
@@ -285,6 +268,31 @@ export default {
           id: 3,
           cost: (1.2).toFixed(2),
           name: "Coke"
+        },
+        {
+          id: 4,
+          cost: (0.3).toFixed(2),
+          name: "Dunkems"
+        },
+        {
+          id: 5,
+          cost: (0.7).toFixed(2),
+          name: "Twizzlers"
+        },
+        {
+          id: 6,
+          cost: (4.5).toFixed(2),
+          name: "Mocha Latte"
+        },
+        {
+          id: 7,
+          cost: (5).toFixed(2),
+          name: "Ribs"
+        },
+        {
+          id: 8,
+          cost: (3).toFixed(2),
+          name: "THIS IS A REALLY LONG NAME"
         }
       ],
       cart: [
@@ -308,11 +316,12 @@ export default {
     };
   },
   mounted: function() {
-    this.username = this.$router.params.user_name;
-    this.balance = this.$router.params.user_balance;
-    this.umid = this.$router.params.user_umid;
-    this.discout = this.$router.params.good_standing_discount;
-    this.no_barcode = this.$router.params.tags_with_nobarcode_items;
+    console.log(this.$route.params);
+    //this.username = this.$route.params.user_name;
+    //this.balance = this.$route.params.user_balance;
+    //this.umid = this.$route.params.user_umid;
+    //this.discout = this.$route.params.good_standing_discount;
+    //this.no_barcode = this.$route.params.tags_with_nobarcode_items;
   },
   methods: {
     addItem(itemID) {
@@ -325,35 +334,51 @@ export default {
           token: "ABC123",
           item_id: itemID
         })
-        .then(
-          () => function(response) {
-            let cost = response.price;
-            for (let i = 0; i < this.cart.length; ++i) {
-            if (this.cart[i].id === response.id) {
+        .then(response => {
+          let cost = parseFloat(response.data.price);
+          for (let i = 0; i < this.cart.length; ++i) {
+            if (this.cart[i].id === response.data.id) {
               this.cart[i].amount += 1;
               this.cart_total = (
-                parseFloat(this.cart_total) + parseFloat(this.cart[i].cost)
+                parseFloat(this.cart_total) + parseFloat(pusher.cost)
               ).toFixed(2);
-              return;
+              this.discount_savings = (
+                parseFloat(this.discount_savings) + parseFloat(cost) * (parseFloat(this.discount) / 100)
+              ).toFixed(2);
+              this.final_total = this.cart_total - this.discount_savings;
+              this.toMain();
             }
           }
-          let pusher = { id: response.id, cost: cost.toFixed(2), type: response.name, amount: 1 };
+          let pusher = {
+            id: response.data.id,
+            cost: cost.toFixed(2),
+            type: response.data.name,
+            amount: 1,
+            total_price: cost.toFixed(2),
+          };
           this.cart.push(pusher);
           this.cart_total = (
             parseFloat(this.cart_total) + parseFloat(pusher.cost)
           ).toFixed(2);
+          this.discount_savings = (
+            parseFloat(this.discount_savings) + parseFloat(cost) * (parseFloat(this.discount) / 100)
+          ).toFixed(2);
+          this.final_total = this.cart_total - this.discount_savings;
           this.toMain();
-          }
-        )
+        });
     },
     //removes and item from the cart
-    removeItem(itemType) {
+    removeItem(itemID) {
       for (let i = 0; i < this.cart.length; ++i) {
-        if (this.cart[i].type === itemType) {
+        if (this.cart[i].id === itemID) {
           if (this.cart[i].amount === 1) {
             this.cart_total = (
               parseFloat(this.cart_total) - parseFloat(this.cart[i].cost)
             ).toFixed(2);
+            this.discount_savings = (
+              parseFloat(this.discount_savings) - parseFloat(this.cart[i].cost) * (parseFloat(this.discount) / 100)
+            ).toFixed(2);
+            this.final_total = this.cart_total - this.discount_savings;
             this.cart.splice(i, 1);
             return;
           } else {
@@ -369,7 +394,7 @@ export default {
     checkOut() {
       let sender = [];
       for (let item in this.cart) {
-        let pusher = {item_id: item.id, quantity: item.amount};
+        let pusher = { item_id: item.id, quantity: item.amount };
         sender.push(pusher);
       }
       let url = "http://localhost:6543/api/terminal/purchase";

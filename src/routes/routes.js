@@ -10,7 +10,7 @@ import Terminal from '../components/Terminal'
 Vue.use(VueRouter)
 
 // register new routes here
-const router = new VueRouter ({
+const router = new VueRouter({
   routes: [
     {
       path: '/',
