@@ -342,6 +342,7 @@ export default {
           this.cart_total = (
             parseFloat(this.cart_total) + parseFloat(pusher.cost)
           ).toFixed(2);
+          this.toMain();
           }
         )
     },
