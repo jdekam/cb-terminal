@@ -27,58 +27,10 @@
       </div>
       <div class="tile is-parent is-10">
         <div class="tile is-child">
-          <div class="panel is-info">
+          <div v-if="!noBarSearch" class="panel is-info">
             <p class="panel-heading">Purchase</p>
             <div class="panel-block">
               <div class="tile">
-                <!-- Purchase Table -->
-                <!-- TODO: Figure out how to put this code into the table.
-                <input type="text" v-model="barcode" v-on:keyup.enter="addItem" placeholder="Item Barcode"/>
-                <div class="cart">
-                  <div class="item" v-for="(item, index) in cart" :key="index">
-                    <div class="costs">${{item.cost}}</div>
-                    <div class="type">{{item.type}}</div>
-                    <div class="amount">{{item.amount}}</div>
-                  </div>
-                </div>
-
-      <div class="tile is-vertical is-parent is-10">
-        <div class="tile is-child">
-          <div class="card">
-            
-            <div v-if="!addingMoney">
-              <button class="return-button" v-on:click="logOut"> LOG OUT </button>
-              <input type="text" v-model="barcode" v-on:keyup.enter="addItem" placeholder="Item Barcode"/>
-              <div class="cart">
-                <div class="item" v-for="(item, index) in cart" :key="index">
-                  <button class="remove-item" v-on:click="removeItem(item.type)">-</button>
-                  <div class="costs">${{item.cost}}</div>
-                  <div class="type">{{item.type}}</div>
-                  <div class="amount">{{item.amount}}</div>
-                </div>
-                Total: ${{cart_total}}
-              </div>
-
-              <button class="submit" v-on:click="toCheckout" v-if="!checkingOut">CHECK OUT</button>
-              <button class="submit" v-on:click="addFunds" v-if="!addingMoney">ADD FUNDS</button>
-              <div id="checkout" v-if="checkingOut">
-                Purchase these items for ${{cart_total}}?
-                <button class="submit" v-on:click="checkOut">Confirm Purchase</button>
-                <button class="return-button" v-on:click="toMain"> CANCEL </button>
-              </div>
-            </div>
-
-            <div v-if="addingMoney">
-              <button class="return-button" v-on:click="toMain"> EXIT </button>
-              <p>Deposit ${{}} into your account?</p>
-              <button v-on:click="addFunds"> Yes </button>
-            </div>
-                <button id="cart-submit" v-on:click="toCheckout" v-if="!checkingOut">CHECK OUT</button>
-                <div id="checkout" v-if="checkingOut">
-                  Purchase these items?
-                  <button v-on:click="checkOut">Confirm Purchase</button>
-                </div>
-                -->
                 <div class="tile is-parent is-9">
                   <div class="tile is-child">
                     <table class="table is-bordered is-fullwidth">
@@ -98,7 +50,7 @@
                           </td>
                         </tr>
 
-                        <tr v-for="(item, index) in cart" :key="index">
+                        <tr v-for="item in cart" :key="item">
                           <td>{{item.type}}</td>
                           <td>{{item.amount}}</td>
                           <td>${{item.cost}}</td>
@@ -152,6 +104,12 @@
             <div id="checkout" v-else>
               <button class="button is-large is-success is-fullwidth" v-on:click="logOut">Logout</button>
             </div>
+          </div>
+
+          <div v-if="noBarSearch">
+            <button v-for="item in no_barcode" :key="item" v-on:click="addItem(item.id)">
+              {{item.name}}
+            </button>
           </div>
         </div>
       </div>
@@ -317,7 +275,18 @@ export default {
       umid: 11111111,
       balance_after: "-6.00",
       amount_owed: "0",
-      no_barcode: [],
+      no_barcode: [
+        {
+          id: 2,
+          cost: (3.2).toFixed(2),
+          name: "Doritos"
+        },
+        {
+          id: 3,
+          cost: (1.2).toFixed(2),
+          name: "Coke"
+        }
+      ],
       cart: [
         {
           id: 1,
@@ -331,7 +300,7 @@ export default {
       discount: 5,
       discount_savings: (0.12).toFixed(2),
       final_total: (2.38).toFixed(2),
-      checkingOut: false,
+      noBarSearch: false,
       addingMoney: false,
       emptyCart: false,
       barcode: "",
@@ -347,30 +316,8 @@ export default {
   },
   methods: {
     addItem(itemID) {
+      console.log(itemID);
       //get cost
-      /**
-      let url = "/terminal/item/barcode/" + this.barcode;
-      this.$axios.get(url)
-        .then(response => function(response) {
-          this.jsonData = response;
-        })
-        .then(response => function() {
-          let cost = 4.30;
-          //let cost = this.jsonData.price;
-          //let type = this.jsonData.item;
-          for (let i = 0; i < this.cart.length; ++i) {
-            //if (this.cart[i].type === type)
-            if (this.cart[i].type === this.barcode) {
-              this.cart[i].amount += 1;
-              return;
-            }
-          }
-          //let pusher = {"cost": cost.toFixed(2), "type": type:, "amount": 1}
-          let pusher = {"cost": cost.toFixed(2), "type": this.barcode, "amount": 1};
-          this.cart.push(pusher);
-          this.cart_total += pusher.cost;
-        });
-        */
       let url = "http://localhost:6543/api/terminal/id";
       this.$axios
         .post(url, {
@@ -442,27 +389,12 @@ export default {
             }
         );
       console.log("here2");
-
-      /**
-      let url = "/terminal/purchase";
-      this.$axios.post(url, {
-        username: this.username,
-        total: this.cart_total,
-      })
-      */
     },
-    /**
     itemWithoutBarcode() {
-      let url = "http://localhost:6543/api/terminal/get/items";
-
-      this.$axios.get(url) 
-        .then((response) => {
-          console.log(response.data);
-        });
-      console.log("here2");
-    },*/
+      this.noBarSearch = true;
+    },
     toMain() {
-      this.checkingOut = false;
+      this.noBarSearch = false;
       this.addingMoney = false;
     },
     addFunds() {
