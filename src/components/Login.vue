@@ -23,8 +23,12 @@
         <div class="tile is-child">
           <div class="card is-vertical-centered">
             <div class="card-content">
-              <div class="notification is-info is-size-4" v-for="announcement in announcements" :key="announcement.id">
-                {{ announcement.content }}
+              <div 
+                class="notification is-info is-size-4" 
+                v-for="(announcement, index) in announcements" 
+                :key="index"
+              >
+                {{ announcement }}
               </div>
             </div>
           </div>
@@ -209,25 +213,18 @@ export default {
   data() {
     return {
       umid: '',
-      scanned: null,
-      debt: '3,129.29',
-      announcements: [
-        {
-          content: "Remember, you save 5% if you keep $20 or more in your account.",
-        },
-        {
-          content: "Help us restock! But please, don't put boxes where they don't go."
-        },
-        {
-          content: "Chez Betty is in a critical amount of debt at the moment. If items are currently unstocked, it is because we are unable to buy new items until the debt is under $2000."
-        },
-      ],
+      scanned: false,
+      debt: '0000.00',
+      announcements: [],
+      interval: '',
     }
   },
   // this hook runs when page is being loaded
   created: function () {
-    // this.getAnnouncements();
-    // this.getDebt();
+    // fetch data for login page on creation
+    this.getPageData()
+    // set data to be refreshed every 30 seconds
+    this.interval = setInterval(this.getPageData, 900000);
   },
   // this hook runs after page has been rendered
   mounted: function () {
@@ -237,22 +234,19 @@ export default {
     const keypad_height = `calc(100% - ${header_height}px)`
     document.querySelector('.cb-kp-container').style.height = keypad_height
   },
+  beforeDestroy: function () {
+    this.interval = clearInterval(this.interval)
+  },
   methods: {
     /**
      * AJAX requests
      */
-    getAnnouncements() {
-      const url = '/terminal_get_announcements/'
-      this.$axios.get(url).then(result => {
-        this.announcements = result.data
-      })
-      .catch(error => {
-        console.log(error)
-      })
-    },
-    getDebt() {
-      const url = '/terminal_get_debt/'
-      this.$axios.get(url).then(result => {
+    getPageData() {
+      const url = 'http://localhost:6543/api/terminal/login'
+      this.$axios.post(url, {
+        token: 'ABC123',
+      }).then(result => {
+        this.announcements = result.data.announcements
         this.debt = result.data.debt
       })
       .catch(error => {
@@ -262,20 +256,19 @@ export default {
     checkUmid() {
       const url = 'http://localhost:6543/api/terminal/umid'
       this.$axios.post(url, {
-        
           umid: this.umid,
           scanned: this.scanned,
-          token: "ABC123",
-      
+          token: 'ABC123',
       })
       .then((response) => {
-        this.$router.push({ name: 'terminal', params: { umid: response.data.umid }})
+        this.$router.push({ name: 'terminal', params: { data: response.data }})
       })
       .catch((error) => {
         console.log(error)
-        this.toggleModal();
+        this.toggleModal() // displayed on failure to validate umid
       })
     },
+
     /**
      * Keypad toggles / click handlers
      */
@@ -297,17 +290,17 @@ export default {
         if (this.umid.length === 8) {
           document.querySelector('.progress').removeAttribute('value')
           this.checkUmid()
-          return;
+          return
         }
       } else {
         if (key === 'Clear') {
           this.umid = ''
         }
         else if (key === 'Delete') {
-          this.umid = this.umid.slice(0, -1);
+          this.umid = this.umid.slice(0, -1)
         }
       }
-      console.log(this.umid)
+
       document.querySelector('.progress').setAttribute('value', this.umid.length)
     }
   }

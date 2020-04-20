@@ -14,7 +14,7 @@ const router = new VueRouter ({
   routes: [
     {
       path: '/',
-      redirect: '/terminal', // NOTE SHOULD REDIRECT TO LOGIN (WAS CHANGED TO DEBUG TERMINAL)
+      redirect: '/login',
     },
     {
       path: '/login',
