@@ -260,10 +260,13 @@ export default {
       })
     },
     checkUmid() {
-      const url = '/terminal_check_umid/'
+      const url = 'http://localhost:6543/api/terminal/umid'
       this.$axios.post(url, {
-        umid: this.umid,
-        scanned: this.scanned,
+        
+          umid: this.umid,
+          scanned: this.scanned,
+          token: "ABC123",
+      
       })
       .then((response) => {
         this.$router.push({ name: 'terminal', params: { umid: response.data.umid }})
@@ -304,6 +307,7 @@ export default {
           this.umid = this.umid.slice(0, -1);
         }
       }
+      console.log(this.umid)
       document.querySelector('.progress').setAttribute('value', this.umid.length)
     }
   }
