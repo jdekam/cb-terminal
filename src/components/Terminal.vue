@@ -406,6 +406,7 @@ export default {
         })
         .then(
           (response) => {
+              console.log(response);
               this.logOut();
               //need to pass the response up to login.vue, unsure how
             }
