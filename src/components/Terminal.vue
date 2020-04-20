@@ -319,34 +319,32 @@ export default {
           token: "ABC123",
           item_id: itemID
         })
-        .then(
-          () =>
-            function(response) {
-              console.log("RESPONDED");
-              let cost = response.price;
-              for (let i = 0; i < this.cart.length; ++i) {
-                if (this.cart[i].id === response.id) {
-                  this.cart[i].amount += 1;
-                  this.cart_total = (
-                    parseFloat(this.cart_total) + parseFloat(this.cart[i].cost)
-                  ).toFixed(2);
-                  return;
-                }
-              }
-              let pusher = {
-                id: response.id,
-                cost: cost.toFixed(2),
-                type: response.name,
-                amount: 1
-              };
-              this.cart.push(pusher);
+        .then(response => {
+          console.log("RESPONDED");
+          let cost = parseFloat(response.data.price);
+          for (let i = 0; i < this.cart.length; ++i) {
+            if (this.cart[i].id === response.data.id) {
+              this.cart[i].amount += 1;
               this.cart_total = (
                 parseFloat(this.cart_total) + parseFloat(pusher.cost)
               ).toFixed(2);
               console.log("HERE");
               this.toMain();
             }
-        );
+          }
+          let pusher = {
+            id: response.data.id,
+            cost: cost.toFixed(2),
+            type: response.data.name,
+            amount: 1
+          };
+          this.cart.push(pusher);
+          this.cart_total = (
+            parseFloat(this.cart_total) + parseFloat(pusher.cost)
+          ).toFixed(2);
+          console.log("HERE");
+          this.toMain();
+        });
     },
     //removes and item from the cart
     removeItem(itemType) {
