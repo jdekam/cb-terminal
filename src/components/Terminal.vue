@@ -405,16 +405,12 @@ export default {
           items: sender
         })
         .then(
-          () =>
-            function(response) {
-              console.log("hello world");
-              this.jsonData = response;
-              console.log(this.jsonData);
+          (response) => {
+              console.log(response);
               this.logOut();
               //need to pass the response up to login.vue, unsure how
             }
         );
-      console.log("here2");
     },
     itemWithoutBarcode() {
       this.noBarSearch = true;
