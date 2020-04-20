@@ -50,7 +50,7 @@
                           </td>
                         </tr>
 
-                        <tr v-for="item in cart" :key="item">
+                        <tr v-for="(item, index) in cart" :key="index">
                           <td>{{item.type}}</td>
                           <td>{{item.amount}}</td>
                           <td>${{item.cost}}</td>
@@ -78,14 +78,14 @@
                 <div class="tile is-parent is-3">
                   <div class="tile is-child">
                     <div class="buttons">
-                      <button
+                     <!-- <button
                         class="button is-small is-link is-fullwidth"
                         v-on:click="selectPayment"
                       >Select Payment</button>
                       <button
                         class="button is-small is-info is-fullwidth"
                         v-on:click="accountInfo"
-                      >Your Account</button>
+                      >Your Account</button>-->
                       <button
                         class="button is-info is-fullwidth"
                         v-on:click="itemWithoutBarcode"
@@ -107,7 +107,7 @@
           </div>
 
           <div v-if="noBarSearch">
-            <button v-for="item in no_barcode" :key="item" v-on:click="addItem(item.id)">
+            <button v-for="(item, index) in no_barcode" :key="index" v-on:click="addItem(item.id)">
               {{item.name}}
             </button>
           </div>
@@ -324,9 +324,10 @@ export default {
           umid: this.umid,
           token: "ABC123",
           item_id: itemID
-        })
+        }, )
         .then(
           () => function(response) {
+            console.log("RESPONDED");
             let cost = response.price;
             for (let i = 0; i < this.cart.length; ++i) {
             if (this.cart[i].id === response.id) {
@@ -342,6 +343,7 @@ export default {
           this.cart_total = (
             parseFloat(this.cart_total) + parseFloat(pusher.cost)
           ).toFixed(2);
+          console.log("HERE");
           this.toMain();
           }
         )
