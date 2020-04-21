@@ -52,12 +52,8 @@
                         </tr>
 
                         <tr v-for="(item, index) in cart" :key="index">
-                          <td> 
-                            <button
-                              class="remove"
-                              v-on:click="removeItem(item.id)">
-                              -
-                            </button>
+                          <td>
+                            <button class="remove" v-on:click="removeItem(item.id)">-</button>
                           </td>
                           <td>{{item.type}}</td>
                           <td>{{item.amount}}</td>
@@ -119,9 +115,8 @@
               class="button is-large is-success margin-25"
               v-for="(item, index) in no_barcode"
               :key="index"
-              v-on:click="addItem(item.id)">
-              {{item.name}}
-            </button>
+              v-on:click="addItem(item.id)"
+            >{{item.name}}</button>
           </div>
 
           <div v-if="addingMoney">
@@ -324,7 +319,7 @@ export default {
   mounted: function() {
     console.log(this.$route.params);
     this.username = this.$route.params.user_name;
-    //this.balance = this.$route.params.user_balance;
+    this.balance = this.$route.params.user_balance;
     this.umid = this.$route.params.user_umid;
     this.discout = this.$route.params.good_standing_discount;
     this.no_barcode = this.$route.params.tags_with_nobarcode_items;
@@ -349,7 +344,8 @@ export default {
                 parseFloat(this.cart_total) + parseFloat(pusher.cost)
               ).toFixed(2);
               this.discount_savings = (
-                parseFloat(this.discount_savings) + parseFloat(cost) * (parseFloat(this.discount) / 100)
+                parseFloat(this.discount_savings) +
+                parseFloat(cost) * (parseFloat(this.discount) / 100)
               ).toFixed(2);
               this.final_total = this.cart_total - this.discount_savings;
               this.toMain();
@@ -360,14 +356,15 @@ export default {
             cost: cost.toFixed(2),
             type: response.data.name,
             amount: 1,
-            total_price: cost.toFixed(2),
+            total_price: cost.toFixed(2)
           };
           this.cart.push(pusher);
           this.cart_total = (
             parseFloat(this.cart_total) + parseFloat(pusher.cost)
           ).toFixed(2);
           this.discount_savings = (
-            parseFloat(this.discount_savings) + parseFloat(cost) * (parseFloat(this.discount) / 100)
+            parseFloat(this.discount_savings) +
+            parseFloat(cost) * (parseFloat(this.discount) / 100)
           ).toFixed(2);
           this.final_total = this.cart_total - this.discount_savings;
           this.toMain();
@@ -382,7 +379,8 @@ export default {
               parseFloat(this.cart_total) - parseFloat(this.cart[i].cost)
             ).toFixed(2);
             this.discount_savings = (
-              parseFloat(this.discount_savings) - parseFloat(this.cart[i].cost) * (parseFloat(this.discount) / 100)
+              parseFloat(this.discount_savings) -
+              parseFloat(this.cart[i].cost) * (parseFloat(this.discount) / 100)
             ).toFixed(2);
             this.final_total = this.cart_total - this.discount_savings;
             this.cart.splice(i, 1);
