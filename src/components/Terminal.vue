@@ -321,8 +321,8 @@ export default {
     this.username = this.$route.params.user_name;
     this.balance = this.$route.params.user_balance;
     this.umid = this.$route.params.user_umid;
-    this.discout = this.$route.params.good_standing_discount;
-    this.no_barcode = this.$route.params.tags_with_nobarcode_items;
+    this.discout = this.$route.params.discount;
+    this.no_barcode = this.$route.params.all_items;
   },
   methods: {
     addItem(itemID) {
@@ -340,6 +340,7 @@ export default {
           for (let i = 0; i < this.cart.length; ++i) {
             if (this.cart[i].id === response.data.id) {
               this.cart[i].amount += 1;
+              this.cart[i].total_price += this.cart[i].cost;
               this.cart_total = (
                 parseFloat(this.cart_total) + parseFloat(pusher.cost)
               ).toFixed(2);
@@ -401,13 +402,11 @@ export default {
         let pusher = { item_id: item.id, quantity: item.amount };
         sender.push(pusher);
       }
+      console.log(sender);
+      let toAPI = {umid: this.umid, token: "ABC123", items: sender}
       let url = "http://localhost:6543/api/terminal/purchase";
       this.$axios
-        .post(url, {
-          umid: this.umid,
-          token: "ABC123",
-          items: sender
-        })
+        .post(url, toAPI)
         .then(
           () => {
               this.logOut();
