@@ -27,7 +27,7 @@
       </div>
       <div class="tile is-parent is-10">
         <div class="tile is-child">
-          <div v-if="!noBarSearch" class="panel is-info">
+          <div v-if="!noBarSearch && !addingMoney" class="panel is-info">
             <p class="panel-heading">Purchase</p>
             <div class="panel-block">
               <div class="tile">
@@ -86,11 +86,11 @@
                 <div class="tile is-parent is-3">
                   <div class="tile is-child">
                     <div class="buttons">
-                      <!-- <button
+                      <button
                         class="button is-small is-link is-fullwidth"
                         v-on:click="selectPayment"
-                      >Select Payment</button>
-                      <button
+                      >Add Funds</button>
+                      <!--<button
                         class="button is-small is-info is-fullwidth"
                         v-on:click="accountInfo"
                       >Your Account</button>-->
@@ -122,6 +122,11 @@
               v-on:click="addItem(item.id)">
               {{item.name}}
             </button>
+          </div>
+
+          <div v-if="addingMoney">
+            Enter the Amount: <input type="number" step="1" min="0" max="50" v-model="addAmount"/>
+            <button v-on:click="addFunds"> Add Funds </button>
           </div>
         </div>
       </div>
@@ -311,17 +316,18 @@ export default {
       noBarSearch: false,
       addingMoney: false,
       emptyCart: false,
+      addAmount: 0,
       barcode: "",
       jsonData: {}
     };
   },
   mounted: function() {
     console.log(this.$route.params);
-    //this.username = this.$route.params.user_name;
+    this.username = this.$route.params.user_name;
     //this.balance = this.$route.params.user_balance;
-    //this.umid = this.$route.params.user_umid;
-    //this.discout = this.$route.params.good_standing_discount;
-    //this.no_barcode = this.$route.params.tags_with_nobarcode_items;
+    this.umid = this.$route.params.user_umid;
+    this.discout = this.$route.params.good_standing_discount;
+    this.no_barcode = this.$route.params.tags_with_nobarcode_items;
   },
   methods: {
     addItem(itemID) {
@@ -405,12 +411,16 @@ export default {
           items: sender
         })
         .then(
-          (response) => {
-              console.log(response);
+          () => {
               this.logOut();
               //need to pass the response up to login.vue, unsure how
             }
-        );
+        )
+        .catch(
+          (error) => {
+            alert(error);
+          }
+        )
     },
     itemWithoutBarcode() {
       this.noBarSearch = true;
@@ -421,7 +431,30 @@ export default {
     },
     addFunds() {
       //api stuff to add funds to account and reload
+      this.balance = (parseFloat(this.balance) + parseFloat(this.addAmount)).toFixed(2);
+      let url = "http://localhost:6543/api/terminal/deposit";
+      this.$axios
+       .post(url, {
+          umid: this.umid,
+          token: "ABC123",
+          amount: this.addAmount,
+          method: "acceptor",
+       })
+       .then(
+        () => {
+          this.toMain()
+            //need to pass the response up to login.vue, unsure how
+          }
+        )
+        .catch(
+          (error) => {
+            alert(error);
+          }
+        )
       this.toMain();
+    },
+    selectPayment() {
+      this.addingMoney = true;
     },
     logOut() {
       this.$router.push({ name: "login", params: {} });
