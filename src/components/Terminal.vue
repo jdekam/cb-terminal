@@ -253,8 +253,8 @@ style chez betty logo .card-image {
 export default {
   data() {
     return {
-      username: "Administrator",
-      balance: "-5.00",
+      username: '',
+      balance: '',
       umid: 11111111,
       balance_after: "-6.00",
       amount_owed: "0",
@@ -316,12 +316,11 @@ export default {
     };
   },
   mounted: function() {
-    console.log(this.$route.params);
-    //this.username = this.$route.params.user_name;
-    //this.balance = this.$route.params.user_balance;
-    //this.umid = this.$route.params.user_umid;
-    //this.discout = this.$route.params.good_standing_discount;
-    //this.no_barcode = this.$route.params.tags_with_nobarcode_items;
+    console.log(this.$route.params.data);
+    this.username = this.$route.params.data.username;
+    this.balance = this.$route.params.data.balance;
+    this.umid = this.$route.params.data.umid;
+    this.gs_discount = this.$route.params.data.good_standing_discount;
   },
   methods: {
     addItem(itemID) {
