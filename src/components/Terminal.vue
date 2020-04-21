@@ -27,7 +27,7 @@
       </div>
       <div class="tile is-parent is-10">
         <div class="tile is-child">
-          <div v-if="!noBarSearch" class="panel is-info">
+          <div v-if="!noBarSearch && !addingMoney" class="panel is-info">
             <p class="panel-heading">Purchase</p>
             <div class="panel-block">
               <div class="tile">
@@ -44,7 +44,7 @@
                         </tr>
                       </thead>
                       <tbody>
-                        <tr v-if="emptyCart">
+                        <tr v-if="!final_total">
                           <td colspan="5">
                             <h1>Order Empty</h1>
                             <h3>Scan an item to begin</h3>
@@ -52,12 +52,8 @@
                         </tr>
 
                         <tr v-for="(item, index) in cart" :key="index">
-                          <td> 
-                            <button
-                              class="remove"
-                              v-on:click="removeItem(item.id)">
-                              -
-                            </button>
+                          <td>
+                            <button class="remove" v-on:click="removeItem(item.id)">-</button>
                           </td>
                           <td>{{item.type}}</td>
                           <td>{{item.amount}}</td>
@@ -86,11 +82,11 @@
                 <div class="tile is-parent is-3">
                   <div class="tile is-child">
                     <div class="buttons">
-                      <!-- <button
+                      <button
                         class="button is-small is-link is-fullwidth"
                         v-on:click="selectPayment"
-                      >Select Payment</button>
-                      <button
+                      >Add Funds</button>
+                      <!--<button
                         class="button is-small is-info is-fullwidth"
                         v-on:click="accountInfo"
                       >Your Account</button>-->
@@ -103,7 +99,7 @@
                 </div>
               </div>
             </div>
-            <div id="checkout" v-if="!emptyCart">
+            <div id="checkout" v-if="final_total">
               <button
                 class="button is-large is-success is-fullwidth"
                 v-on:click="checkOut"
@@ -119,9 +115,14 @@
               class="button is-large is-success margin-25"
               v-for="(item, index) in no_barcode"
               :key="index"
-              v-on:click="addItem(item.id)">
-              {{item.name}}
-            </button>
+              v-on:click="addItem(item.id)"
+            >{{item.name}}</button>
+          </div>
+
+          <div v-if="addingMoney">
+            Enter the Amount:
+            <input type="number" step="1" min="0" max="50" v-model="addAmount" />
+            <button v-on:click="addFunds">Add Funds</button>
           </div>
         </div>
       </div>
@@ -256,71 +257,30 @@ export default {
       username: '',
       balance: '',
       umid: 11111111,
-      balance_after: "-6.00",
+      balance_after: "0.00",
       amount_owed: "0",
-      no_barcode: [
-        {
-          id: 2,
-          cost: (3.2).toFixed(2),
-          name: "Doritos"
-        },
-        {
-          id: 3,
-          cost: (1.2).toFixed(2),
-          name: "Coke"
-        },
-        {
-          id: 4,
-          cost: (0.3).toFixed(2),
-          name: "Dunkems"
-        },
-        {
-          id: 5,
-          cost: (0.7).toFixed(2),
-          name: "Twizzlers"
-        },
-        {
-          id: 6,
-          cost: (4.5).toFixed(2),
-          name: "Mocha Latte"
-        },
-        {
-          id: 7,
-          cost: (5).toFixed(2),
-          name: "Ribs"
-        },
-        {
-          id: 8,
-          cost: (3).toFixed(2),
-          name: "THIS IS A REALLY LONG NAME"
-        }
-      ],
-      cart: [
-        {
-          id: 1,
-          cost: (2.5).toFixed(2),
-          type: "Milk",
-          amount: 1,
-          total_price: (2.5).toFixed(2)
-        }
-      ],
-      cart_total: (2.5).toFixed(2),
+      no_barcode: [],
+      cart: [],
+      cart_total: (0.0).toFixed(2),
       discount: 5,
-      discount_savings: (0.12).toFixed(2),
-      final_total: (2.38).toFixed(2),
+      discount_savings: (0.0).toFixed(2),
+      final_total: 0,
       noBarSearch: false,
       addingMoney: false,
-      emptyCart: false,
+      emptyCart: true,
+      addAmount: 0,
       barcode: "",
       jsonData: {}
     };
   },
   mounted: function() {
     console.log(this.$route.params.data);
-    this.username = this.$route.params.data.username;
-    this.balance = this.$route.params.data.balance;
-    this.umid = this.$route.params.data.umid;
-    this.gs_discount = this.$route.params.data.good_standing_discount;
+    this.username = this.$route.params.data.user_name;
+    this.balance = this.$route.params.data.user_balance;
+    this.umid = this.$route.params.data.user_umid;
+    // this.discout = this.$route.params.data.good_standing_discount;
+    this.no_barcode = this.$route.params.data.all_items;
+    console.log(this.$route.params.data.all_items);
   },
   methods: {
     addItem(itemID) {
@@ -338,11 +298,13 @@ export default {
           for (let i = 0; i < this.cart.length; ++i) {
             if (this.cart[i].id === response.data.id) {
               this.cart[i].amount += 1;
+              this.cart[i].total_price += this.cart[i].cost;
               this.cart_total = (
                 parseFloat(this.cart_total) + parseFloat(pusher.cost)
               ).toFixed(2);
               this.discount_savings = (
-                parseFloat(this.discount_savings) + parseFloat(cost) * (parseFloat(this.discount) / 100)
+                parseFloat(this.discount_savings) +
+                parseFloat(cost) * (parseFloat(this.discount) / 100)
               ).toFixed(2);
               this.final_total = this.cart_total - this.discount_savings;
               this.toMain();
@@ -353,14 +315,15 @@ export default {
             cost: cost.toFixed(2),
             type: response.data.name,
             amount: 1,
-            total_price: cost.toFixed(2),
+            total_price: cost.toFixed(2)
           };
           this.cart.push(pusher);
           this.cart_total = (
             parseFloat(this.cart_total) + parseFloat(pusher.cost)
           ).toFixed(2);
           this.discount_savings = (
-            parseFloat(this.discount_savings) + parseFloat(cost) * (parseFloat(this.discount) / 100)
+            parseFloat(this.discount_savings) +
+            parseFloat(cost) * (parseFloat(this.discount) / 100)
           ).toFixed(2);
           this.final_total = this.cart_total - this.discount_savings;
           this.toMain();
@@ -375,7 +338,8 @@ export default {
               parseFloat(this.cart_total) - parseFloat(this.cart[i].cost)
             ).toFixed(2);
             this.discount_savings = (
-              parseFloat(this.discount_savings) - parseFloat(this.cart[i].cost) * (parseFloat(this.discount) / 100)
+              parseFloat(this.discount_savings) -
+              parseFloat(this.cart[i].cost) * (parseFloat(this.discount) / 100)
             ).toFixed(2);
             this.final_total = this.cart_total - this.discount_savings;
             this.cart.splice(i, 1);
@@ -396,6 +360,7 @@ export default {
         let pusher = { item_id: item.id, quantity: item.amount };
         sender.push(pusher);
       }
+      console.log(sender);
       let url = "http://localhost:6543/api/terminal/purchase";
       this.$axios
         .post(url, {
@@ -403,13 +368,13 @@ export default {
           token: "ABC123",
           items: sender
         })
-        .then(
-          (response) => {
-              console.log(response);
-              this.logOut();
-              //need to pass the response up to login.vue, unsure how
-            }
-        );
+        .then(() => {
+          this.logOut();
+          //need to pass the response up to login.vue, unsure how
+        })
+        .catch(error => {
+          alert(error);
+        });
     },
     itemWithoutBarcode() {
       this.noBarSearch = true;
@@ -420,7 +385,28 @@ export default {
     },
     addFunds() {
       //api stuff to add funds to account and reload
+      this.balance = (
+        parseFloat(this.balance) + parseFloat(this.addAmount)
+      ).toFixed(2);
+      let url = "http://localhost:6543/api/terminal/deposit";
+      this.$axios
+        .post(url, {
+          umid: this.umid,
+          token: "ABC123",
+          amount: this.addAmount,
+          method: "acceptor"
+        })
+        .then(() => {
+          this.toMain();
+          //need to pass the response up to login.vue, unsure how
+        })
+        .catch(error => {
+          alert(error);
+        });
       this.toMain();
+    },
+    selectPayment() {
+      this.addingMoney = true;
     },
     logOut() {
       this.$router.push({ name: "login", params: {} });
