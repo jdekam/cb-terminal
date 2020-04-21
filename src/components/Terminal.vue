@@ -44,7 +44,7 @@
                         </tr>
                       </thead>
                       <tbody>
-                        <tr v-if="emptyCart">
+                        <tr v-if="!final_total">
                           <td colspan="5">
                             <h1>Order Empty</h1>
                             <h3>Scan an item to begin</h3>
@@ -99,7 +99,7 @@
                 </div>
               </div>
             </div>
-            <div id="checkout" v-if="!emptyCart">
+            <div id="checkout" v-if="final_total">
               <button
                 class="button is-large is-success is-fullwidth"
                 v-on:click="checkOut"
@@ -120,8 +120,9 @@
           </div>
 
           <div v-if="addingMoney">
-            Enter the Amount: <input type="number" step="1" min="0" max="50" v-model="addAmount"/>
-            <button v-on:click="addFunds"> Add Funds </button>
+            Enter the Amount:
+            <input type="number" step="1" min="0" max="50" v-model="addAmount" />
+            <button v-on:click="addFunds">Add Funds</button>
           </div>
         </div>
       </div>
@@ -254,19 +255,19 @@ export default {
   data() {
     return {
       username: "Administrator",
-      balance: "-5.00",
+      balance: "0.00",
       umid: 11111111,
-      balance_after: "-6.00",
+      balance_after: "0.00",
       amount_owed: "0",
       no_barcode: [],
       cart: [],
-      cart_total: (2.5).toFixed(2),
+      cart_total: (0.0).toFixed(2),
       discount: 5,
-      discount_savings: (0.12).toFixed(2),
-      final_total: (2.38).toFixed(2),
+      discount_savings: (0.0).toFixed(2),
+      final_total: 0,
       noBarSearch: false,
       addingMoney: false,
-      emptyCart: false,
+      emptyCart: true,
       addAmount: 0,
       barcode: "",
       jsonData: {}
@@ -365,17 +366,13 @@ export default {
           token: "ABC123",
           items: sender
         })
-        .then(
-          () => {
-              this.logOut();
-              //need to pass the response up to login.vue, unsure how
-            }
-        )
-        .catch(
-          (error) => {
-            alert(error);
-          }
-        )
+        .then(() => {
+          this.logOut();
+          //need to pass the response up to login.vue, unsure how
+        })
+        .catch(error => {
+          alert(error);
+        });
     },
     itemWithoutBarcode() {
       this.noBarSearch = true;
@@ -386,26 +383,24 @@ export default {
     },
     addFunds() {
       //api stuff to add funds to account and reload
-      this.balance = (parseFloat(this.balance) + parseFloat(this.addAmount)).toFixed(2);
+      this.balance = (
+        parseFloat(this.balance) + parseFloat(this.addAmount)
+      ).toFixed(2);
       let url = "http://localhost:6543/api/terminal/deposit";
       this.$axios
-       .post(url, {
+        .post(url, {
           umid: this.umid,
           token: "ABC123",
           amount: this.addAmount,
-          method: "acceptor",
-       })
-       .then(
-        () => {
-          this.toMain()
-            //need to pass the response up to login.vue, unsure how
-          }
-        )
-        .catch(
-          (error) => {
-            alert(error);
-          }
-        )
+          method: "acceptor"
+        })
+        .then(() => {
+          this.toMain();
+          //need to pass the response up to login.vue, unsure how
+        })
+        .catch(error => {
+          alert(error);
+        });
       this.toMain();
     },
     selectPayment() {
