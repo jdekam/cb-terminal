@@ -6,7 +6,7 @@
           <div class="card is-vertical-centered">
             <div class="card-image is-pulled-left">
               <figure class="image is-square">
-                <img src="../assets/chezbetty_1000px.jpg" alt="CB Logo" />
+                <img src="../assets/chezbetty_1000px.jpg" alt="Logo" />
               </figure>
             </div>
             <div class="card-content">

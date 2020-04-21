@@ -3,7 +3,6 @@ import VueRouter from 'vue-router'
 
 // component imports
 import Login from '../components/Login'
-import Logout from '../components/Logout'
 import Terminal from '../components/Terminal'
 
 // register VueRouter
@@ -20,11 +19,6 @@ const router = new VueRouter({
       path: '/login',
       name: 'login',
       component: Login,
-    },
-    {
-      path: '/logout',
-      name: 'logout',
-      component: Logout,
     },
     {
       path: '/terminal',

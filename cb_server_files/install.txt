@@ -1,0 +1,7 @@
+Install the CB repo, then overwrite users.py in the models/ directory and copy
+api_terminal.py to the chez-betty/ directory. Then, you will need to add the routes 
+from api_terminal.py as and the file itself to the __init__.py file, also in the
+chez-betty/ directory. 
+
+From there, you'll hopefully be able to run the server or far enough along to debug
+what issues are remaining.
