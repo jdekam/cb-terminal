@@ -253,52 +253,8 @@ export default {
       umid: 11111111,
       balance_after: "-6.00",
       amount_owed: "0",
-      no_barcode: [
-        {
-          id: 2,
-          cost: (3.2).toFixed(2),
-          name: "Doritos"
-        },
-        {
-          id: 3,
-          cost: (1.2).toFixed(2),
-          name: "Coke"
-        },
-        {
-          id: 4,
-          cost: (0.3).toFixed(2),
-          name: "Dunkems"
-        },
-        {
-          id: 5,
-          cost: (0.7).toFixed(2),
-          name: "Twizzlers"
-        },
-        {
-          id: 6,
-          cost: (4.5).toFixed(2),
-          name: "Mocha Latte"
-        },
-        {
-          id: 7,
-          cost: (5).toFixed(2),
-          name: "Ribs"
-        },
-        {
-          id: 8,
-          cost: (3).toFixed(2),
-          name: "THIS IS A REALLY LONG NAME"
-        }
-      ],
-      cart: [
-        {
-          id: 1,
-          cost: (2.5).toFixed(2),
-          type: "Milk",
-          amount: 1,
-          total_price: (2.5).toFixed(2)
-        }
-      ],
+      no_barcode: [],
+      cart: [],
       cart_total: (2.5).toFixed(2),
       discount: 5,
       discount_savings: (0.12).toFixed(2),
@@ -311,12 +267,13 @@ export default {
     };
   },
   mounted: function() {
-    console.log(this.$route.params);
-    this.username = this.$route.params.user_name;
-    this.balance = this.$route.params.user_balance;
-    this.umid = this.$route.params.user_umid;
-    this.discout = this.$route.params.good_standing_discount;
-    this.no_barcode = this.$route.params.tags_with_nobarcode_items;
+    console.log(this.$route.params.data);
+    this.username = this.$route.params.data.user_name;
+    this.balance = this.$route.params.data.user_balance;
+    this.umid = this.$route.params.data.user_umid;
+    this.discout = this.$route.params.data.good_standing_discount;
+    this.no_barcode = this.$route.params.data.all_items;
+    console.log(this.$route.params.data.all_items);
   },
   methods: {
     addItem(itemID) {
