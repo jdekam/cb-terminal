@@ -44,7 +44,7 @@
                         </tr>
                       </thead>
                       <tbody>
-                        <tr v-if="emptyCart">
+                        <tr v-if="!final_total">
                           <td colspan="5">
                             <h1>Order Empty</h1>
                             <h3>Scan an item to begin</h3>
@@ -99,7 +99,7 @@
                 </div>
               </div>
             </div>
-            <div id="checkout" v-if="!emptyCart">
+            <div id="checkout" v-if="final_total">
               <button
                 class="button is-large is-success is-fullwidth"
                 v-on:click="checkOut"
@@ -120,8 +120,9 @@
           </div>
 
           <div v-if="addingMoney">
-            Enter the Amount: <input type="number" step="1" min="0" max="50" v-model="addAmount"/>
-            <button v-on:click="addFunds"> Add Funds </button>
+            Enter the Amount:
+            <input type="number" step="1" min="0" max="50" v-model="addAmount" />
+            <button v-on:click="addFunds">Add Funds</button>
           </div>
         </div>
       </div>
@@ -254,75 +255,32 @@ export default {
   data() {
     return {
       username: "Administrator",
-      balance: "-5.00",
+      balance: "0.00",
       umid: 11111111,
-      balance_after: "-6.00",
+      balance_after: "0.00",
       amount_owed: "0",
-      no_barcode: [
-        {
-          id: 2,
-          cost: (3.2).toFixed(2),
-          name: "Doritos"
-        },
-        {
-          id: 3,
-          cost: (1.2).toFixed(2),
-          name: "Coke"
-        },
-        {
-          id: 4,
-          cost: (0.3).toFixed(2),
-          name: "Dunkems"
-        },
-        {
-          id: 5,
-          cost: (0.7).toFixed(2),
-          name: "Twizzlers"
-        },
-        {
-          id: 6,
-          cost: (4.5).toFixed(2),
-          name: "Mocha Latte"
-        },
-        {
-          id: 7,
-          cost: (5).toFixed(2),
-          name: "Ribs"
-        },
-        {
-          id: 8,
-          cost: (3).toFixed(2),
-          name: "THIS IS A REALLY LONG NAME"
-        }
-      ],
-      cart: [
-        {
-          id: 1,
-          cost: (2.5).toFixed(2),
-          type: "Milk",
-          amount: 1,
-          total_price: (2.5).toFixed(2)
-        }
-      ],
-      cart_total: (2.5).toFixed(2),
+      no_barcode: [],
+      cart: [],
+      cart_total: (0.0).toFixed(2),
       discount: 5,
-      discount_savings: (0.12).toFixed(2),
-      final_total: (2.38).toFixed(2),
+      discount_savings: (0.0).toFixed(2),
+      final_total: 0,
       noBarSearch: false,
       addingMoney: false,
-      emptyCart: false,
+      emptyCart: true,
       addAmount: 0,
       barcode: "",
       jsonData: {}
     };
   },
   mounted: function() {
-    console.log(this.$route.params);
-    this.username = this.$route.params.user_name;
-    this.balance = this.$route.params.user_balance;
-    this.umid = this.$route.params.user_umid;
-    this.discout = this.$route.params.discount;
-    this.no_barcode = this.$route.params.all_items;
+    console.log(this.$route.params.data);
+    this.username = this.$route.params.data.user_name;
+    this.balance = this.$route.params.data.user_balance;
+    this.umid = this.$route.params.data.user_umid;
+    this.discout = this.$route.params.data.good_standing_discount;
+    this.no_barcode = this.$route.params.data.all_items;
+    console.log(this.$route.params.data.all_items);
   },
   methods: {
     addItem(itemID) {
@@ -403,21 +361,20 @@ export default {
         sender.push(pusher);
       }
       console.log(sender);
-      let toAPI = {umid: this.umid, token: "ABC123", items: sender}
       let url = "http://localhost:6543/api/terminal/purchase";
       this.$axios
-        .post(url, toAPI)
-        .then(
-          () => {
-              this.logOut();
-              //need to pass the response up to login.vue, unsure how
-            }
-        )
-        .catch(
-          (error) => {
-            alert(error);
-          }
-        )
+        .post(url, {
+          umid: this.umid,
+          token: "ABC123",
+          items: sender
+        })
+        .then(() => {
+          this.logOut();
+          //need to pass the response up to login.vue, unsure how
+        })
+        .catch(error => {
+          alert(error);
+        });
     },
     itemWithoutBarcode() {
       this.noBarSearch = true;
@@ -428,26 +385,24 @@ export default {
     },
     addFunds() {
       //api stuff to add funds to account and reload
-      this.balance = (parseFloat(this.balance) + parseFloat(this.addAmount)).toFixed(2);
+      this.balance = (
+        parseFloat(this.balance) + parseFloat(this.addAmount)
+      ).toFixed(2);
       let url = "http://localhost:6543/api/terminal/deposit";
       this.$axios
-       .post(url, {
+        .post(url, {
           umid: this.umid,
           token: "ABC123",
           amount: this.addAmount,
-          method: "acceptor",
-       })
-       .then(
-        () => {
-          this.toMain()
-            //need to pass the response up to login.vue, unsure how
-          }
-        )
-        .catch(
-          (error) => {
-            alert(error);
-          }
-        )
+          method: "acceptor"
+        })
+        .then(() => {
+          this.toMain();
+          //need to pass the response up to login.vue, unsure how
+        })
+        .catch(error => {
+          alert(error);
+        });
       this.toMain();
     },
     selectPayment() {
