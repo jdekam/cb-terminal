@@ -107,8 +107,8 @@
         </div>
       </div>
     </div>
-    <div class="modal">
-      <div class="modal-background" @click="toggleModal()"></div>
+    <div :class="{ 'is-active': loginModal }" class="modal">
+      <div class="modal-background" @click="loginModal = false"></div>
       <div class="modal-content">
         <div class="notification is-danger is-size-3">
           <span v-if="scanned">
@@ -124,7 +124,15 @@
           </span>
         </div>
       </div>
-      <button class="modal-close is-large" @click="toggleModal()"></button>
+      <button class="modal-close is-large" @click="loginModal = false"></button>
+    </div>
+    <div :class="{ 'is-active': timeoutModal }" class="modal">
+      <div class="modal-background"></div>
+      <div class="modal-content">
+        <div class="notification is-danger is-size-3">
+          <span>We're having trouble connecting to the Chez Betty servers. Hopefully they will be back soon!</span>
+        </div>
+      </div>
     </div>
   </section>
 </template>
@@ -229,6 +237,9 @@ export default {
       debt: '0000.00',
       announcements: [],
       interval: '',
+      timeout: '',
+      timeoutModal: false,
+      loginModal: false,
     }
   },
   // this hook runs when page is being loaded
@@ -236,7 +247,12 @@ export default {
     // fetch data for login page on creation
     this.getPageData()
     // set data to be refreshed every 30 seconds
-    this.interval = setInterval(this.getPageData, 900000);
+    this.interval = setInterval(this.getPageData, 30000)
+    this.timeout = setInterval(this.handleHeartbeat, 5000)
+    // check if we were kicked out by timeout
+    if ('timeout' in this.$route.params) {
+      this.timeoutModal = true
+    }
   },
   // this hook runs after page has been rendered
   mounted: function() {
@@ -248,6 +264,7 @@ export default {
   },
   beforeDestroy: function () {
     this.interval = clearInterval(this.interval)
+    this.timeout = clearInterval(this.timeout)
   },
   methods: {
     /**
@@ -277,34 +294,31 @@ export default {
       })
       .catch((error) => {
         console.log(error)
-        this.toggleModal() // displayed on failure to validate umid
+        this.loginModal = true // displayed on failure to validate umid
+      })
+    },
+    handleHeartbeat() {
+      const url = 'http://localhost:6543/api/terminal/heartbeat'
+      this.$axios.post(url, {
+        token: 'ABC123',
+      }, { timeout: 2000}).then(() => {
+        this.timeoutModal = false
+      }).catch(() => {
+        this.timeoutModal = true
       })
     },
 
     /**
      * Keypad toggles / click handlers
      */
-    toggleModal() {
-      const modal = document.querySelector(".modal");
-      if (modal.classList.contains("is-active")) {
-        modal.classList.remove("is-active");
-      } else {
-        // clear umid data and reset progress bar
-        this.scanned = null;
-        this.umid = "";
-        document
-          .querySelector(".progress")
-          .setAttribute("value", this.umid.length);
-        modal.classList.add("is-active");
-      }
-    },
     handleKeypadEntry(key) {
       if (Number.isInteger(key)) {
         this.umid += key;
         if (this.umid.length === 8) {
           document.querySelector('.progress').removeAttribute('value')
           this.checkUmid()
-          return
+          this.umid = ''
+          document.querySelector('.progress').setAttribute('value', this.umid.length)
         }
       } else {
         if (key === 'Clear') {
@@ -317,6 +331,14 @@ export default {
 
       document.querySelector('.progress').setAttribute('value', this.umid.length)
     }
-  }
+  },
+  handleUmidScan() {
+    /**
+     * stub function to connect to card scanner. this can be done with the
+     * node-hid library; however, you'll need to disable some linux protections
+     * to do this (linux has pretty strict rules about directly accessing certain
+     * input devices like keyboards, probably to prevent keylogging)
+     */
+  },
 };
 </script>

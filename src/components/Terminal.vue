@@ -207,8 +207,8 @@
         <div v-if="Object.entries(purchaseResponse).length > 0" class="notification is-success">
           <p class="title">Your purchase was successful!</p>
           <p class="subtitle">Total: ${{ parseFloat(purchaseResponse.order_table.order.total).toFixed(2) }}</p>
-          <p class="subtitle">UMID: {{ purchaseResponse.order_table.user_umid }}
-          <p class="subtitle">New Balance: ${{ parseFloat(purchaseResponse.user_balance).toFixed(2) }}</p>
+          <p class="subtitle">Payment Method: {{ currentPaymentMethod }}
+          <p class="subtitle">New Balance: ${{ purchaseResponse.order_table.pool_balance !== '' ? purchaseResponse.order_table.pool_balance : parseFloat(purchaseResponse.user_balance).toFixed(2) }}</p>
           <p class="subtitle">Purchase ID: {{ purchaseResponse.order_table.event_id }}</p>
         </div>
       </div>
@@ -339,6 +339,7 @@ export default {
       defaultTagMsg: 'Select a Tag to Search For Items',
       currentTagItems: {},
       currentTag: null,
+      timeout: '',
 
       depositModal: false,
       failedDepositModal: false,
@@ -375,9 +376,27 @@ export default {
     if (this.balance < -5.00) {
       this.debtModal = true
     }
+
+    this.timeout = setInterval(this.handleHeartbeat, 5000)
+  },
+
+  beforeDestroy: function() {
+    this.timeout = clearInterval(this.timeout)
   },
 
   methods: {
+    // ensure cb is still online
+    handleHeartbeat() {
+      const url = 'http://localhost:6543/api/terminal/heartbeat'
+      this.$axios.post(url, {
+        token: 'ABC123',
+      }).then(() => {
+        this.timeoutModal = false
+      }).catch(() => {
+        this.$router.push({ name: 'login', params: { 'timeout': true} })
+      })
+    },
+
     // all items added by id are already in client side vars by now
     addItemById(id) {
       if (id in this.cart) {
@@ -515,6 +534,16 @@ export default {
     logOut() {
       this.$router.push({ name: 'login', params: {} })
     },
+
+    handleBarcodeScane() {
+      // function stub for barcode scanner. should read the barcode
+      // using something like node-hid, then call addItemWithBarcode()
+    },
+    handleBillAcceptor() {
+      // function stub for bill acceptor. depending on how you want to handle this,
+      // it might be best to make this a global listener to at least log all
+      // bills that have been accepted, rather than only running on the terminal page.
+    }
   },
 };
 </script>
